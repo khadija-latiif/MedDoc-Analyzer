@@ -1165,3 +1165,4 @@ chore: update dependencies on 2023-12-31 00:00:00
 2023-05-13T21:04:01 - chore: update dependencies
 2023-04-17T14:44:47 - test: add unit test
 2023-11-24T08:57:22 - update: general improvements
+2023-01-27T09:47:04 - docs: update documentation
