@@ -561,3 +561,4 @@
 2023-06-30T00:00:00 - docs: update documentation
 2023-07-01T00:00:00 - fix: correct bug
 2023-07-01T00:00:00 - test: add unit tests
+2023-07-01T00:00:00 - perf: optimize performance
