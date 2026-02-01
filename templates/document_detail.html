@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block title %}Document Details - Medical Document Processing{% endblock %}
+
+{% block extra_css %}
+<style>
+    .breadcrumb {
+        margin-bottom: 32px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .breadcrumb a {
+        color: #2563eb;
+        text-decoration: none;
+        margin-right: 8px;
+        font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+        color: #1d4ed8;
+    }
+
+    .document-header {
+        background: #059669;
+        color: white;
+        padding: 24px 28px;
+        border-radius: 8px;
+        margin-bottom: 32px;
+        border: 1px solid #047857;
+    }
+
+    .document-header.cover-sheet {
+        background: #2563eb;
+        border: 1px solid #1d4ed8;
+    }
+
+    .document-header h2 {
+        margin-bottom: 6px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .document-header p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .two-column-layout {
+        display: grid;
+        grid-template-columns: 30% 70%;
+        gap: 24px;
+        margin-top: 32px;
+    }
+
+    .left-column, .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .card {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 24px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .card h3 {
+        color: #1e293b;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-table tr {
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .info-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .info-table td {
+        padding: 14px 0;
+        font-size: 14px;
+    }
+
+    .info-table td:first-child {
+        font-weight: 600;
+        color: #475569;
+        width: 140px;
+    }
+
+    .info-table td:last-child {
+        color: #1e293b;
+    }
+
+    .info-table .comments-cell {
+        max-width: 400px;
+        word-wrap: break-word;
+        line-height: 1.6;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+        word-break: break-word;
+        max-width: 100%;
+    }
+
+    .info-table code {
+        background: #f1f5f9;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        color: #1e293b;
+        border: 1px solid #e2e8f0;
+    }
+    }
+
+    .expandable {
+        margin-top: 16px;
+    }
+
+    .expandable-header {
+        background: #f1f5f9;
+        padding: 14px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+        font-size: 14px;
+        font-weight: 500;
+        color: #475569;
+    }
+
+    .expandable-header:hover {
+        background: #e2e8f0;
+    }
+
+    .expandable-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .expandable-content.open {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .expandable-body {
+        padding: 20px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+    }
+
+    .text-content {
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+        background: #f8fafc;
+        padding: 16px;
+        border-radius: 6px;
+        color: #334155;
+        line-height: 1.7;
+        border: 1px solid #e2e8f0;
+    }
+
+    .json-content {
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+        font-size: 12px;
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 6px;
+        overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .carousel {
+        position: relative;
+    }
+
+    .carousel-container {
+        background: white;
+        padding: 20px;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .carousel-image {
+        max-width: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .carousel-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .carousel-btn {
+        padding: 10px 20px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .carousel-btn:hover:not(:disabled) {
+        background: #1d4ed8;
+    }
+
+    .carousel-btn:disabled {
+        background: #cbd5e1;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .carousel-info {
+        font-weight: 600;
+        color: #1e293b;
+        min-width: 150px;
+        font-size: 14px;
+    }
+
+    .no-data {
+        text-align: center;
+        color: #94a3b8;
+        padding: 40px;
+        font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+        .two-column-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/">← Home</a>
+    <span>/</span>
+    <a href="{{ url_for('batch_results', session_id=session_id) }}">← Back to Batch Results</a>
+</div>
+
+<div class="document-header{% if doc_info.is_cover_sheet %} cover-sheet{% endif %}">
+    <h2>Processing Complete: {{ doc_info.display_name }}</h2>
+    <p>{% if doc_info.is_cover_sheet %}Cover Sheet | {% endif %}Pages {{ doc_info.page_range }}</p>
+</div>
+
+<div class="two-column-layout">
+    <!-- Left Column: Extracted Information -->
+    <div class="left-column">
+        <div class="card">
+            {% if doc_info.is_cover_sheet and cover_page_result %}
+            <h3>Cover Sheet Information</h3>
+            <table class="info-table">
+                <tr>
+                    <td>Type:</td>
+                    <td><strong>Cover Sheet</strong></td>
+                </tr>
+                <tr>
+                    <td>Sending Organization:</td>
+                    <td>{{ cover_page_result.get('sending_organization', 'N/A') }}</td>
+                </tr>
+                <tr>
+                    <td>Comments/Notes:</td>
+                    <td class="comments-cell" style="white-space: pre-wrap;">{{ cover_page_result.get('comments', 'N/A') }}</td>
+                </tr>
+            </table>
+            {% else %}
+            <h3>Extracted Information</h3>
+            <table class="info-table">
+                <tr>
+                    <td>Document Category:</td>
+                    <td>
+                        <span class="category-badge">{{ result.get('category', 'N/A') }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Patient Name:</td>
+                    <td><strong>{{ result.get('patient_name', 'N/A') }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Patient DOB:</td>
+                    <td>{{ result.get('patient_dob', 'N/A') }}</td>
+                </tr>
+                <tr>
+                    <td>Signer Name:</td>
+                    <td><strong>{{ result.get('signer_name', 'N/A') }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Signer NPI:</td>
+                    <td><code>{{ result.get('signer_npi', 'N/A') }}</code></td>
+                </tr>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Column: Annotated Pages -->
+    <div class="right-column">
+        <div class="card">
+            <h3>Annotated Pages</h3>
+            {% if annotated_images %}
+            <div class="carousel">
+                <script type="application/json" id="carouselImagesData">{{ annotated_images | tojson }}</script>
+                <div class="carousel-container">
+                    <img id="carouselImage" class="carousel-image"
+                         src="{{ url_for('serve_annotated_image', filename=annotated_images[0]) }}"
+                         alt="Annotated page">
+                    <div class="carousel-controls">
+                        <button class="carousel-btn" onclick="prevImage()" id="prevBtn">← Previous</button>
+                        <div class="carousel-info">
+                            <span id="currentPage">1</span> of <span id="totalPages">{{ annotated_images|length }}</span>
+                        </div>
+                        <button class="carousel-btn" onclick="nextImage()" id="nextBtn">Next →</button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="no-data">No annotated images were generated</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- <div style="margin-top: 40px; text-align: center; display: flex; gap: 20px; justify-content: center;">
+    <a href="{{ url_for('batch_results', session_id=session_id) }}" class="btn">
+        ← Back to Batch Results
+    </a>
+    <a href="/" class="btn btn-secondary">
+        Process New Batch
+    </a>
+</div> -->
+
+<script>
+    // Expandable sections
+    function toggleExpand(id) {
+        const content = document.getElementById(id);
+        const icon = document.getElementById(id + '-icon');
+
+        if (content.classList.contains('open')) {
+            content.classList.remove('open');
+            icon.textContent = '▼';
+        } else {
+            content.classList.add('open');
+            icon.textContent = '▲';
+        }
+    }
+
+    // Carousel functionality
+    const carouselImagesScript = document.getElementById('carouselImagesData');
+    let images = [];
+    let currentIndex = 0;
+
+    if (carouselImagesScript) {
+        try {
+            images = JSON.parse(carouselImagesScript.textContent);
+            console.log('✅ Parsed images:', images);
+            console.log('✅ Number of images:', images.length);
+        } catch (e) {
+            console.error('❌ Error parsing images:', e);
+            images = [];
+        }
+    } else {
+        console.log('❌ No carousel images script found');
+    }
+
+    function updateCarousel() {
+        const img = document.getElementById('carouselImage');
+        const currentPage = document.getElementById('currentPage');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        if (images.length > 0 && img && currentPage && prevBtn && nextBtn) {
+            img.src = '/annotated_image/' + images[currentIndex];
+            currentPage.textContent = currentIndex + 1;
+
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === images.length - 1;
+        }
+    }
+
+    function prevImage() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+        }
+    }
+
+    function nextImage() {
+        if (currentIndex < images.length - 1) {
+            currentIndex++;
+            updateCarousel();
+        }
+    }
+
+    // Initialize carousel
+    if (images.length > 0) {
+        updateCarousel();
+    }
+</script>
+{% endblock %}
+
